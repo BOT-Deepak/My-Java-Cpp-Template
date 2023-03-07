@@ -2,33 +2,37 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
-class Main
+public class Main
 {
+	static Reader get = new Reader();
+	static Scanner sc = new Scanner(System.in);
     static BufferedWriter put = new BufferedWriter(new OutputStreamWriter(System.out));
     static int intmax = Integer.MAX_VALUE;
     static int intmin = Integer.MIN_VALUE;
-    static long mod = 1000000007L;
+    static int mod = (int)1e9+7;
+    
+    public static void code() throws java.lang.Exception
+    {
+        
+    }
     
     public static void main (String[] args) throws java.lang.Exception
 	{
-	    Reader get = new Reader();
-	    
-	    int T = 1;
-	    
-	    while(T-->0)
-	    {
-	    	
-	    	
-	    	put.write("\n");
-	    	put.flush();
-	    }
-	       
+		int T = get.nextInt();
+		while(T-->0) code();
+		// code();
+		
+		put.flush();
 	    put.close();
+	    
+	    System.out.flush();
+	    sc.close();
 	}
 }
  
 class Reader {
     final private int BUFFER_SIZE = 1 << 16;
+    final private int STRING_LENGTH = (int)1e6+1;
     private DataInputStream din;
     private byte[] buffer;
     private int bufferPointer, bytesRead;
@@ -50,7 +54,7 @@ class Reader {
 
     public String readLine() throws IOException
     {
-        byte[] buf = new byte[64]; // line length
+        byte[] buf = new byte[STRING_LENGTH];
         int cnt = 0, c;
         while ((c = read()) != -1) {
             if (c == '\n') {
