@@ -1,110 +1,74 @@
 import java.util.*;
 import java.lang.*;
 import java.io.*;
- 
+
+//
+// FUNCTIONS BELOW :
+// readArr(), readArr2(), readMat(), printArr(), printMat(),
+// isPrime(), lcm(), gcd(), totient(), findDiv(),
+// sortInt(), sortLong(), power(), freqArr(),
+// MATRIX: multiply(), power(),
+// hashCode(), kmpAlgo(), zAlgo()
+//
+// CLASSES BELOW :
+// Pair, Trie, Corasick, DSU, FenwickTree, SegmentTree, LazySegTree, 
+// RangeBit, SparseTable, LCA, BitSet, MaxFlow, SuffixArray, Reader, SuffixTree
+//
+
 class Ready
 {
+    static Reader get = new Reader();
+    static Scanner sc = new Scanner(System.in);
     static BufferedWriter put = new BufferedWriter(new OutputStreamWriter(System.out));
     static int intmax = Integer.MAX_VALUE;
     static int intmin = Integer.MIN_VALUE;
-    static long mod = 1000000007L;
+    static int mod = (int)1e9+7;
+    
+    public static void code() throws java.lang.Exception
+    {
+        
+    }
     
     public static void main (String[] args) throws java.lang.Exception
-	{
-	    FastReader get = new FastReader();
-	    
-	    int T = 1;
-	    
-	    while(T-->0)
-	    {
-	    	int k = get.nextInt();
-	    	int n = get.nextInt();
-	    	
-	    	int [] arr = new int[n];
-	    	for(int i=0; i<n; i++) arr[i]=get.nextInt();
-	    	
-	    	ans( arr, n, k );
-	    	
-	    	put.flush();
-	    }
-	    
-	    put.close();
-	}
+    {
+        int T = get.nextInt();
+        while(T-->0) code();
+        // code();
+        
+        put.flush();
+        put.close();
+        
+        System.out.flush();
+        sc.close();
+    }
 	
-	public static void ans( int [] arr, int n, int k ) throws java.lang.Exception
-	{
-		Arrays.sort(arr);
-		
-		int low=1, high=arr[n-1]*((k-1)<<1);
-		
-		put.write(high+"\n");
-		
-		while(low<high)
-		{
-			int mid = low+((high-low+1)>>1);
-			
-			if(func(mid, arr, k)) {
-				high=mid;
-			}
-			else low=mid+1;
-		}
-		
-		put.write(low+"\n");
-	}
-	
-	public static boolean func(int x, int [] arr, int k)
-	{
-		int cnt=0;
-		
-		for(int i=0; i<arr.length; i++)
-		{
-			cnt += (int)(Math.log(x/arr[i])/Math.log(2))+1;
-			
-			if(cnt >= k) return true;
-		}
-		return false;
-	}
-	
-	//
-	// FUNCTIONS BELOW :
-	// isPrime(), lcm(), gcd(), totient(), findDiv(), sortInt(), sortLong(),
-	// power(), freqArr(), MATRIX: multiply(), power()
-	// CLASSES BELOW :
-	// DSU, FenwickTree, SegmentTree, LazySegTree, RangeBit, SparseTable, LCA, BitSet, MaxFlow
-	//
-	
-	public static int[] readArr(int N, FastReader get) throws Exception
+	public static int[] readArr(int N) throws Exception
     {
         int[] arr = new int[N];
-        StringTokenizer st = new StringTokenizer(get.nextLine(), " ");
-        for(int i=0; i < N; i++) arr[i] = Integer.parseInt(st.nextToken());
-        
+        for(int i=0; i < N; i++)
+            arr[i] = get.nextInt();
         return arr;
     }
     
-    public static long[] readArr2(int N, FastReader get) throws Exception
+    public static long[] readArr2(int N) throws Exception
     {
         long[] arr = new long[N];
-        StringTokenizer st = new StringTokenizer(get.nextLine(), " ");
-        for(int i=0; i < N; i++) arr[i] = Long.parseLong(st.nextToken());
-        
+        for(int i=0; i < N; i++)
+            arr[i] = get.nextLong();
         return arr;
     }
     
-    public static int[][] readMat(int N, int M, FastReader get) throws Exception
+    public static int[][] readMat(int N, int M) throws Exception
     {
         int [][] mat = new int[N][M];
         
         for(int i=0; i < N; i++)
-        {
-            StringTokenizer st = new StringTokenizer(get.nextLine(), " ");
-            for(int j=0; j < M; j++) mat[i][j] = Integer.parseInt(st.nextToken());
-        }
-        
+            for(int j=0; j < M; j++)
+                mat[i][j] = get.nextInt();
         return mat;
     }
     
-    public static void print(int[] arr) throws java.lang.Exception
+    public static void printArr(int[] arr) throws java.lang.Exception
     {
         for(int x: arr)
             put.write(x+" ");
@@ -114,13 +78,9 @@ class Ready
     public static void printMat(int[][] arr) throws java.lang.Exception
     {
         for(int i=0; i < arr.length; i++)
-        {
             for(int j=0; j < arr[0].length; j++)
-            {
                 put.write(arr[i][j] + " ");
-            }
             put.write("\n");
-        }
         put.write("\n");
     }
 	
@@ -304,6 +264,60 @@ class Ready
         }
         return res;
     }
+
+    // Rabin-Karp HashGenerator
+    public static long hashCode(String s)
+    {
+        long p = 1;
+        long pow = 31;
+        long ans = s.charAt(0)-'a'+1;
+
+        for(int i=1; i<s.length(); i++) {
+            ans = (ans+(s.charAt(i)-'a'+1)*pow) % mod;
+            pow = (pow*p) % mod;
+        }
+
+        return ans;
+    }
+
+    // KMP-Algorithm
+    public static int kmpAlgo(String s) // longest prefix which is also a suffix
+    {
+        int i=1, len=0;
+        int[] lps = new int[s.length()];
+
+        while(i < s.length())
+        {
+            if(s.charAt(i) == s.charAt(len)) lps[i++] = ++len;
+            else if(len > 0) len = lps[len-1];
+            else lps[i++] = 0;
+        }
+
+        return lps[lps.length-1];
+    }
+
+    // Z-Algorithm
+    public static ArrayList<Integer> Zalgo(String pat, String S)
+    {
+        int l = 0, r = 0;
+        String s = pat + "#" + S;
+        
+        int[] z = new int[s.length()];
+        
+        for(int i=0; i<s.length(); i++)
+        {
+            if(l <= r) z[i] = Math.min(r-i+1, z[i-l]);
+            while(i+z[i] < s.length() && s.charAt(z[i]) == s.charAt(i+z[i])) z[i]++;
+            if(i+z[i]-1 > r) { l = i; r = i+z[i]-1; }
+        }
+        
+        ArrayList<Integer> list = new ArrayList<>();
+        
+        for(int i=1; i<z.length; i++)
+            if(z[i] == pat.length()) list.add(i-pat.length());
+        
+        return list;
+    }
 }
  
 class Pair implements Comparable<Pair>
@@ -378,7 +392,72 @@ class Trie
         return pCrawl.isEnd;
     }
 }
- 
+
+// Aho-Corasick Down ->
+class Corasick
+{
+    static class node {
+        HashMap<Character, node> child = new HashMap<>();
+        node suffix_link;
+        node output_link;
+        int pattern_ind;
+
+        node() {
+            this.suffix_link = null;
+            this.output_link = null;
+            this.pattern_ind = -1;
+        }
+    }
+
+    public static void build_trie(node root, String[] patterns) 
+    {
+        for (int i = 0; i < patterns.length; i++) {
+            node curr = root;
+
+            for (int j = 0; j < patterns[i].length(); j++) {
+                char c = patterns[i].charAt(j);
+                if (curr.child.containsKey(c)) curr = curr.child.get(c);
+                else {
+                    node nn = new node();
+                    curr.child.put(c, nn);
+                    curr = nn;
+                }
+            }
+            curr.pattern_ind = i;
+        }
+    }
+
+    public static void build_suffix_and_output_links(node root)       // will use bfs to set links
+    {
+        root.suffix_link = root;           //root represents empty string
+        Queue<node> qu = new LinkedList<>();
+
+        for (char rc : root.child.keySet()) {
+            qu.add(root.child.get(rc));
+            root.child.get(rc).suffix_link = root;  // root's children suffixlink will point to root only
+        }
+
+        while (qu.size() > 0)
+        {
+            node curState = qu.peek();
+            qu.remove();
+
+            for (char cc : curState.child.keySet()) {
+                node cchild = curState.child.get(cc); // jiske liye suffix link dhund rhe hein
+                node tmp = curState.suffix_link;    // parent suffix link
+                while (!tmp.child.containsKey(cc) && tmp != root) tmp = tmp.suffix_link;    //finding lps
+
+            if (tmp.child.containsKey(cc)) cchild.suffix_link = tmp.child.get(cc);
+            else cchild.suffix_link = root;
+            qu.add(cchild);
+        }
+
+        // setting output link
+        if (curState.suffix_link.pattern_ind >= 0) curState.output_link = curState.suffix_link;
+        else curState.output_link = curState.suffix_link.output_link;
+    }
+}
+
 class DSU
 {
     public int[] dsu;
@@ -920,63 +999,133 @@ class SuffixArray
         }
     }
 }
- 
-class FastReader
+
+// Reader Class for FAST I/O
+
+class Reader 
 {
-    BufferedReader br;
-    StringTokenizer st;
- 
-    public FastReader()
+    final private int BUFFER_SIZE = 1 << 16;
+    final private int STRING_LENGTH = (int)1e6+1;
+    private DataInputStream din;
+    private byte[] buffer;
+    private int bufferPointer, bytesRead;
+
+    public Reader()
     {
-        br = new BufferedReader(new InputStreamReader(System.in));
+        din = new DataInputStream(System.in);
+        buffer = new byte[BUFFER_SIZE];
+        bufferPointer = bytesRead = 0;
     }
- 
-    String next()
+
+    public Reader(String file_name) throws IOException
     {
-        while (st == null || !st.hasMoreElements())
-        {
-            try
-            {
-                st = new StringTokenizer(br.readLine());
+        din = new DataInputStream(
+            new FileInputStream(file_name));
+        buffer = new byte[BUFFER_SIZE];
+        bufferPointer = bytesRead = 0;
+    }
+
+    public String readLine() throws IOException
+    {
+        byte[] buf = new byte[STRING_LENGTH];
+        int cnt = 0, c;
+        while ((c = read()) != -1) {
+            if (c == '\n') {
+                if (cnt != 0) {
+                    break;
+                }
+                else {
+                    continue;
+                }
             }
-            catch (IOException  e)
-            {
-                e.printStackTrace();
+            buf[cnt++] = (byte)c;
+        }
+        return new String(buf, 0, cnt);
+    }
+
+    public int nextInt() throws IOException
+    {
+        int ret = 0;
+        byte c = read();
+        while (c <= ' ') {
+            c = read();
+        }
+        boolean neg = (c == '-');
+        if (neg)
+            c = read();
+        do {
+            ret = ret * 10 + c - '0';
+        } while ((c = read()) >= '0' && c <= '9');
+
+        if (neg)
+            return -ret;
+        return ret;
+    }
+
+    public long nextLong() throws IOException
+    {
+        long ret = 0;
+        byte c = read();
+        while (c <= ' ')
+            c = read();
+        boolean neg = (c == '-');
+        if (neg)
+            c = read();
+        do {
+            ret = ret * 10 + c - '0';
+        } while ((c = read()) >= '0' && c <= '9');
+        if (neg)
+            return -ret;
+        return ret;
+    }
+
+    public double nextDouble() throws IOException
+    {
+        double ret = 0, div = 1;
+        byte c = read();
+        while (c <= ' ')
+            c = read();
+        boolean neg = (c == '-');
+        if (neg)
+            c = read();
+
+        do {
+            ret = ret * 10 + c - '0';
+        } while ((c = read()) >= '0' && c <= '9');
+
+        if (c == '.') {
+            while ((c = read()) >= '0' && c <= '9') {
+                ret += (c - '0') / (div *= 10);
             }
         }
-        return st.nextToken();
+
+        if (neg)
+            return -ret;
+        return ret;
     }
- 
-    int nextInt()
+
+    private void fillBuffer() throws IOException
     {
-        return Integer.parseInt(next());
+        bytesRead = din.read(buffer, bufferPointer = 0,
+                             BUFFER_SIZE);
+        if (bytesRead == -1)
+            buffer[0] = -1;
     }
- 
-    long nextLong()
+
+    private byte read() throws IOException
     {
-        return Long.parseLong(next());
+        if (bufferPointer == bytesRead)
+            fillBuffer();
+        return buffer[bufferPointer++];
     }
- 
-    double nextDouble()
+
+    public void close() throws IOException
     {
-        return Double.parseDouble(next());
-    }
- 
-    String nextLine()
-    {
-        String str = "";
-        try
-        {
-            str = br.readLine();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        return str;
+        if (din == null)
+            return;
+        din.close();
     }
 }
-
 
 // THIS IS TOXIC AF, SUFFIX TREE IMPLEMENTATION, UNSEE IT PLS....
 
@@ -1015,6 +1164,31 @@ class SuffixTree
 
         //finally walk the tree again and set up the index.
         setIndexUsingDfs(root, 0, input.length);
+    }
+
+    public boolean findPattern(SuffixNode node, String pat, int i)
+    {
+        if(node == null)
+            return false;
+
+        int j = node.start;
+
+        while(j <= node.end.end)
+        {
+            if(i == pat.length()-1 && pat.charAt(i) == input[j])
+                return true;
+            else if(input[j] != pat.charAt(i))
+                return false;
+
+            i++;j++;
+        }
+
+        for(SuffixNode child: node.child)
+        {
+            boolean nextAns = findPattern(child, pat, i);
+            if(nextAns) return true;
+        }
+        return false;
     }
 
     private void startPhase(int i) 
