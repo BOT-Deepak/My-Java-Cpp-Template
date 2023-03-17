@@ -6,11 +6,13 @@ using namespace std;
 template<typename... T>
 void see(T&... args) { ((cin >> args), ...);}
 template<typename... T>
-void put(T&&... args) { ((cout << args << " "), ...);}
+void put(T&&... args) { ((cout << args), ...);}
+template<typename... T>
+void puts(T&&... args) { ((cout << args << " "), ...);}
 template<typename... T>
 void putl(T&&... args) { ((cout << args << " "), ...); cout<<'\n';}
 
-// #define int long long
+#define int long long 
 #define ll long long
 #define all(x) x.begin(),x.end()
 #define pii pair<int,int>
@@ -18,23 +20,23 @@ void putl(T&&... args) { ((cout << args << " "), ...); cout<<'\n';}
 #define vii vector<pii>
 #define pb push_back
 
-#define rep(i,a,b) for(int i=a; i<b; ++i)
-#define rev(i,a,b) for(int i=a; i>b; --i)
+#define rep(i,a,b) for(int i=a;i<b;++i)
+#define rev(i,a,b) for(int i=a;i>b;--i)
 #define seea(a,x,y) for(int i=x;i<y;i++){cin>>a[i];}
 #define seev(v,n) for(int i=0;i<n;i++){int x; cin>>x; v.push_back(x);}
 
 const ll inf = INT_MAX;
-const ll mod = 1000000007;
+const ll mod = 1e9+7;
 
 void code()
 {
-	
+
 }
 
 signed main()
 {
 	fast;
 	int t = 1;
-	// cin >> t;
+	cin >> t;
 	while(t--) code();
 }
