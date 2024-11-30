@@ -1,1541 +1,601 @@
 import java.util.*;
-import java.lang.*;
 import java.io.*;
+import java.lang.*;
+import java.util.stream.Collectors;
 
-//
-// FUNCTIONS BELOW :
-// readArr(), readArr2(), readMat(), printArr(), printMat(),
-// isPrime(), lcm(), gcd(), totient(), findDiv(),
-// sortInt(), sortLong(), power(), freqArr(),
-// MATRIX: multiply(), power(),
-// hashCode(), kmpAlgo(), zAlgo()
-//
-// CLASSES BELOW :
-// Pair, Trie, Corasick, DSU, FenwickTree, SegmentTree, LazySegTree, 
-// RangeBit, SparseTable, LCA, BitSet, MaxFlow, SuffixArray, Reader, SuffixTree
-//
+public class Library {
 
-class Ready
-{
-    static Reader get = new Reader();
-    static Scanner sc = new Scanner(System.in);
-    static BufferedWriter put = new BufferedWriter(new OutputStreamWriter(System.out));
-    static int intmax = Integer.MAX_VALUE;
-    static int intmin = Integer.MIN_VALUE;
-    static int mod = (int)1e9+7;
-    
-    public static void code() throws java.lang.Exception
-    {
-        
-    }
-    
-    public static void main (String[] args) throws java.lang.Exception
-    {
-        int T = get.nextInt();
-        while(T-->0) code();
-        // code();
-        
-        put.flush();
-        put.close();
-        
-        System.out.flush();
-        sc.close();
-    }
-	
-	public static int[] readArr(int N) throws Exception
-    {
-        int[] arr = new int[N];
-        for(int i=0; i < N; i++)
-            arr[i] = get.nextInt();
-        return arr;
-    }
-    
-    public static long[] readArr2(int N) throws Exception
-    {
-        long[] arr = new long[N];
-        for(int i=0; i < N; i++)
-            arr[i] = get.nextLong();
-        return arr;
-    }
-    
-    public static int[][] readMat(int N, int M) throws Exception
-    {
-        int [][] mat = new int[N][M];
-        
-        for(int i=0; i < N; i++)
-            for(int j=0; j < M; j++)
-                mat[i][j] = get.nextInt();
-        return mat;
-    }
-    
-    public static void printArr(int[] arr) throws java.lang.Exception
-    {
-        for(int x: arr)
-            put.write(x+" ");
-        put.write("\n");
-    }
-    
-    public static void printMat(int[][] arr) throws java.lang.Exception
-    {
-        for(int i=0; i < arr.length; i++)
-            for(int j=0; j < arr[0].length; j++)
-                put.write(arr[i][j] + " ");
-            put.write("\n");
-        put.write("\n");
-    }
-	
-    public static boolean isPrime(long n)
-    {
+    static int d4[][] = new int[][] {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+    static int d8[][] = new int[][] {{0, -1}, {0, 1}, {-1, 0}, {1, 0}, {1, -1}, {1, 1}, {-1, -1}, {-1, 1}};
+    static int imax = Integer.MAX_VALUE, imin = Integer.MIN_VALUE;
+    static long lmax = Long.MAX_VALUE, lmin = Long.MIN_VALUE;
+    static long umod = (long)1e9+7, cmod = 998244353;
+
+
+    // checks if n is prime number or not
+    private static boolean is_prime(long n) {
         if(n < 2) return false;
-        if(n == 2 || n == 3) return true;
-        if(n%2 == 0 || n%3 == 0) return false;
-        long sqrtN = (long)Math.sqrt(n)+1;
-        for(long i = 6L; i <= sqrtN; i += 6) {
-            if(n%(i-1) == 0 || n%(i+1) == 0) return false;
-        }
+        if(n == 2) return true;
+        if(n%2 == 0) return false;
+
+        long sq = (long)Math.sqrt(n);
+        for(int i=3; i<=sq; i+=2)
+            if(n%i == 0)
+                return false;
+
         return true;
     }
-    
-    public static long lcm(long a, long b)
-    {
-        return (a / gcd(a, b)) * b;
+
+    // greatest common divisor (hcf)
+    private static long get_gcd(long x, long y) {
+        if(x == 0) return y;
+        return get_gcd(y%x, x);
     }
-    
-    public static long gcd(long a, long b)
-    {
-        if(a > b) a = (a+b)-(b=a);
-        if(a == 0L) return b;
-        
-        return gcd(b%a, a);
+
+    // lowest common multiple (lcm)
+    private static long get_lcm(long x, long y) {
+        return (x / get_gcd(x, y)) * y;
     }
-    
-    public static long totient(long n)
-    {
-        long result = n;
-        for (int p = 2; p*p <= n; ++p)
-            if (n % p == 0)
-            {
-                while(n%p == 0)
-                    n /= p;
-                result -= result/p;
-            }
-        if (n > 1) result -= result/n;
-        
-        return result;
+
+    // count of numbers from 1 to n-1 which are relatively prime with n
+    private static long get_totient(long n) {
+        long res = n;
+        for(long p=2; p*p<=n; ++p) {
+            if(n%p == 0) {
+                while(n%p == 0) n /= p;
+                res *= (1.0 - (1.0 / double(p)));
+            }}
+
+        if(n > 1) res -= (res/n);
+        return res;
     }
-    
-    public static ArrayList<Integer> findDiv(int N)
-    {
-        //gets all divisors of N
-        ArrayList<Integer> ls1 = new ArrayList<Integer>();
-        ArrayList<Integer> ls2 = new ArrayList<Integer>();
-        for(int i=1; i <= (int)(Math.sqrt(N)+0.00000001); i++)
-            if(N%i == 0)
-            {
-                ls1.add(i);
-                ls2.add(N/i);
-            }
-        Collections.reverse(ls2);
-        for(int b: ls2)
-            if(b != ls1.get(ls1.size()-1))
-                ls1.add(b);
-        return ls1;
-    }
-    
-    public static void sortInt(int[] arr)
-    {
-        //because Arrays.sort() uses quicksort which is dumb
-        //Collections.sort() uses merge sort
-        
-        ArrayList<Integer> ls = new ArrayList<Integer>();
-        
-        for(int x: arr) ls.add(x);
-        
-        Collections.sort(ls);
-        for(int i=0; i < arr.length; i++) arr[i] = ls.get(i);
-    }
-    
-    public static void sortLong(long[] arr)
-    {
-        //because Arrays.sort() uses quicksort which is dumb
-        //Collections.sort() uses merge sort
-        
-        ArrayList<Long> ls = new ArrayList<Long>();
-        
-        for(long x: arr) ls.add(x);
-        
-        Collections.sort(ls);
-        for(int i=0; i < arr.length; i++) arr[i] = ls.get(i);
-    }
-    
-    public static void sortChar(char[] arr)
-    {
-        //because Arrays.sort() uses quicksort which is dumb
-        //Collections.sort() uses merge sort
-        
-        ArrayList<Character> ls = new ArrayList<Character>();
-        
-        for(char x: arr) ls.add(x);
-        
-        Collections.sort(ls);
-        for(int i=0; i < arr.length; i++) arr[i] = ls.get(i);
-    }
-    
-    public static String sortString(String inputString)
-    {
-        char tempArray[] = inputString.toCharArray();
-        sortChar(tempArray);
-        return new String(tempArray);
-    }
-    
-    public static long power(long x, long y, long p)
-    {
-        //0^0 = 1
+
+    // x power y mod p
+    private static long get_power(long x, long y, long p) {
         long res = 1L;
-        x = x%p;
-        while(y > 0)
-        {
-            if((y&1)==1)
-                res = (res*x)%p;
+        x %= p;
+        while(y > 0) {
+            if((y&1) == 1) res = (res*x)%p;
             y >>= 1;
             x = (x*x)%p;
         }
         return res;
     }
-    
-    //custom multiset (replace with HashMap if needed)
-    public static void push(TreeMap<Integer, Integer> map, int k, int v)
-    {
-        //map[k] += v;
-        if(!map.containsKey(k)) map.put(k, v);
-        else map.put(k, map.get(k)+v);
+
+    private static void get_digpow(long x, long y, int n) {
+        long pw = y * (long)Math.log10(x);
+        String fd = Math.pow(10, pw-Math.floor(pw)) * Math.pow(10, n-1) + "";
+        String ld = get_power(x, y, Math.pow(10, n));
     }
-    
-    public static void pull(TreeMap<Integer, Integer> map, int k, int v)
-    {
-        //assumes map[k] >= v
-        //map[k] -= v
-        int lol = map.get(k);
-        
-        if(lol == v) map.remove(k);
-        else map.put(k, lol-v);
+}
+
+class RabinKarp {
+    public long[] pp;
+
+    public RabinKarp(n) {
+        this.pp = new long[n];
+        pp[0] = 1;
+        pp[1] = 31;
+        for(int i=2; i<n; ++i) pp[i] = (pp[i-1]*31)%umod;
     }
-    
-    public static HashMap<Integer, Integer> freqMap(int[] arr)
-    {
-        HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+
+    public long get_string_hash(String s) {
+        long res = 0;
+        for(int i=0; i<s.length(); ++i)
+            res = (res + (s.charAt(i)-'a'+1)*pp[i])%umod;
+        return res;
+    }
+
+    public long get_char_hash(char c, int i) {
+        return ((c-'a'+1)*pp[i])%umod;
+    }
+}
+
+class FactorSeive {
+
+    public int N;
+    public int[] SPF;
+    public List<Integer> PRIMES;
+    public Map<Integer, Integer> PX;
+
+    public FactorSeive(int n) {
+        this.N = n;
+    }
+
+    private List<Integer> get_factors() {
         
-        for(int x: arr)
-            if(!map.containsKey(x)) map.put(x, map.get(x) + 1);
-            else map.put(x, 1);
+        List<Integer> res = new ArrayList<>();
+        int i = 1;
+        
+        while(i*i < N) {
+            if(N % i == 0) res.add(i);
+            ++i;}
+
+        if(i-(N/i) == 1) --i;
+
+        while(i > 0) {
+            if(N % i == 0) res.append(N/i);
+            --i;}
+
+        return res;
+    }
+
+    private void prime_sieve() {
+
+        this.PRIMES = new ArrayList<>();
+        int[] p = new int[N+1];
+
+        for(int i=2; i<=N; ++i)
+            if(p[i] == 0)
+                for(int j=i*i; i<=N; j+=i)
+                    p[j] = 1;
+
+        for(int i=2; i<=N; ++i)
+            if(p[i] == 0)
+                PRIMES.add(i);
+    }
+
+    // sieve to get prime factors in O(logN)
+    private static void prime_factor_seive() {
+        this.SPF = new int[N+1];
+        SPF[1] = 1;
+
+        for(int i=2; i<=N; ++i) SPF[i] = i;
+        for(int i=4; i<=N; i+=2) SPF[i] = 2;
+
+        for(int i=3; i*i<=N; ++i)
+            if(SPF[i] == i)
+                for(int j=i*i; j<=N; j+=i)
+                    if(SPF[j] == j) SPF[j] = i;
+    }
+
+    // count the total number of factors of n and get P1^x1, P2^x2 for every n
+    private static int count_factors() {
+        this.PX = new HashMap<>();
+        int res = 1, n = N;
+
+        while(n > 1) {
+            int cur = SPF[n], cnt = 0;
+            while(n > 1 && SPF[n] == cur) {
+                ++cnt;
+                n /= cur;
+            }
+            res *= (cnt+1);
+            PX.put(cur, PX.getOrDefault(cur,0) + cnt);
+        }
+
+        return res;
+    }
+}
+
+class StringMatching {
+
+    public char[] S;
+    public int[] PI;
+    public int lenP, lenT, lenS;
+
+    public StringMatching(String pattern, String haystack) {
+        this.lenP = pattern.length();
+        this.lenT = haystack.length();
+        this.lenS = lenP + lenT + 1;
+        this.PI = new int[lenS];
+        this.S = (pattern + "#" + haystack).toCharArray();
+    }
+
+    private static List<Integer> get_kmp() {
+
+        for(int i=1; i < lenS; ++i) {
+            int j = PI[i-1];
+            while(j > 0 && S[i] != S[j]) j = PI[j-1];
+            if(S[i] == S[j]) ++j;
+            PI[i] = j;
+        }
+
+        List<Integer> res = new ArrayList<>();
+        for(int i=lenP+1; i < lenS; ++i)
+            if(PI[i] == lenP) res.add(i-2*lenP);
+        
+        return res;
+    }
+
+    private static List<Integer> get_zalgo() {
+
+        int L = 0, R = 0;
+        for(int i=1; i < lenS; ++i) {
+
+            if(i <= R && PI[i-L] < R-i+1)
+                PI[i] = PI[i-L];
+            else {
+                if(i > R) L = R = i;
+                else L = i;
+
+                while(R < lenS && S[R-L] == S[R]) ++R;
+                PI[i] = (R--)-L;
+            }}
+
+        List<Integer> res = new ArrayList<>();
+        for(int i=0; i < lenS; ++i)
+            if(PI[i] == lenP && i-lenP-1 <= lenS-lenP)
+                res.add(i-lenP-1);
+        
+        return res;
+    }
+}
+
+class FenvickTree {
+
+    public int[] FEN;
+    public int N;
+
+    public FenvickTree(int n) {
+        this.N = n+5;
+        this.FEN = new int[N];
+    }
+
+    public void add(int ind, int val) {
+        while(ind <= N) {
+            FEN[ind] += val;
+            ind += (ind & -ind);
+        }
+    }
+
+    public int find(int ind) {
+        int res = 0;
+        while(ind > 0) {
+            res += FEN[ind];
+            ind -= (ind & -ind);
+        }
+        return res;
+    }
+
+    public int find(int left, int right) {
+        return find(right) - find(left-1);
+    }
+}
+
+class DSU {
+
+    public int N;
+    public int[] SIZE, PARENT;
+
+    public DSU(int n) {
+        this.N = n;
+        this.SIZE = new int[n];
+        this.PARENT = new int[n];
+
+        for(int i=0; i < n; ++i) {
+            SIZE[i] = 1;
+            PARENT[i] = i;}
+    }
+
+    public int find(int x) {
+        if(PARENT[x] != x)
+            PARENT[x] = find(PARENT[x]);
+        return PARENT[x];
+    }
+
+    public void merge(int x, int y) {
+        int a = PARENT[x], b = PARENT[y];
+        if(a == b) return;
+
+        if(SIZE[a] < SIZE[b]) {
+            a = a^b; b = a^b; a = a^b;}
+
+        PARENT[b] = a;
+        SIZE[a] += SIZE[b];
+    }
+}
+
+class TrieNode {
+
+    public int ALPHABET_SIZE = 26;
+    public TrieNode[] CHILDREN;
+    public boolean IS_END;
+
+    public TrieNode() {
+        this.CHILDREN = new TrieNode[ALPHABET_SIZE];
+        this.IS_END = false;
+    }
+}
+
+class Trie {
+
+    public TrieNode ROOT;
+
+    public Trie() {
+        this.ROOT = new TrieNode();
+    }
+
+    public void insert(String s) {
+        TrieNode pCrawl = this.ROOT;
+
+        for(int i=0; i < s.length(); ++i) {
+            int idx = s.charAt(i)-'a';
             
-        return map;
-    }
-    
-    public static long[][] multiply(long[][] left, long[][] right)
-    {
-        long MOD = 1000000007L;
-        int N = left.length;
-        int M = right[0].length;
-        long[][] res = new long[N][M];
-        for(int a=0; a < N; a++)
-            for(int b=0; b < M; b++)
-                for(int c=0; c < left[0].length; c++)
-                {
-                    res[a][b] += (left[a][c]*right[c][b])%MOD;
-                    if(res[a][b] >= MOD)
-                        res[a][b] -= MOD;
-                }
-        return res;
-    }
-    
-    public static long[][] power(long[][] grid, long pow)
-    {
-        long[][] res = new long[grid.length][grid[0].length];
-        for(int i=0; i < res.length; i++)
-            res[i][i] = 1L;
-        long[][] curr = grid.clone();
-        while(pow > 0)
-        {
-            if((pow&1L) == 1L)
-                res = multiply(curr, res);
-            pow >>= 1;
-            curr = multiply(curr, curr);
-        }
-        return res;
-    }
-
-    // Rabin-Karp HashGenerator
-    public static long hashCode(String s)
-    {
-        long p = 1;
-        long pow = 31;
-        long ans = s.charAt(0)-'a'+1;
-
-        for(int i=1; i<s.length(); i++) {
-            ans = (ans+(s.charAt(i)-'a'+1)*pow) % mod;
-            pow = (pow*p) % mod;
+            if(pCrawl.CHILDREN[idx] == null) pCrawl.CHILDREN[idx] = new TrieNode();
+            pCrawl = pCrawl.CHILDREN[idx];
         }
 
-        return ans;
+        pCrawl.IS_END = true;
     }
 
-    // KMP-Algorithm
-    public static int kmpAlgo(String s) // longest prefix which is also a suffix
-    {
-        int i=1, len=0;
-        int[] lps = new int[s.length()];
+    public boolean search(String s) {
+        TrieNode pCrawl = this.ROOT;
 
-        while(i < s.length())
-        {
-            if(s.charAt(i) == s.charAt(len)) lps[i++] = ++len;
-            else if(len > 0) len = lps[len-1];
-            else lps[i++] = 0;
-        }
-
-        return lps[lps.length-1];
-    }
-
-    // Z-Algorithm
-    public static ArrayList<Integer> Zalgo(String pat, String S)
-    {
-        int l = 0, r = 0;
-        String s = pat + "#" + S;
-        
-        int[] z = new int[s.length()];
-        
-        for(int i=0; i<s.length(); i++)
-        {
-            if(l <= r) z[i] = Math.min(r-i+1, z[i-l]);
-            while(i+z[i] < s.length() && s.charAt(z[i]) == s.charAt(i+z[i])) z[i]++;
-            if(i+z[i]-1 > r) { l = i; r = i+z[i]-1; }
-        }
-        
-        ArrayList<Integer> list = new ArrayList<>();
-        
-        for(int i=1; i<z.length; i++)
-            if(z[i] == pat.length()) list.add(i-pat.length());
-        
-        return list;
-    }
-}
- 
-class Pair implements Comparable<Pair>
-{
-    int a, b;
-    
-    public Pair(int a, int b)
-    {
-        this.a = a;
-        this.b = b;
-    }
-    
-    @Override
-    public int compareTo(Pair p)
-    {
-    	if(this.a > p.a) return -1;
-        else if(this.a < p.a) return 1;
-        else
-        {
-            if(this.b > p.b) return -1;
-            else return 1;
-        }
-    }
-}
-
-class Trie 
-{
-    static final int ALPHABET_SIZE = 26;
-    static TrieNode root;
-    
-    public Trie() { root = new TrieNode(); }
-     
-    static class TrieNode
-    {
-        TrieNode[] child = new TrieNode[ALPHABET_SIZE];
-        boolean isEnd;
-         
-        TrieNode()
-        {
-            isEnd = false;
-            for (int i = 0; i < ALPHABET_SIZE; i++) child[i] = null;
-        }
-    };
-    
-    static void insert(String key)
-    { 
-        TrieNode pCrawl = root;
-      
-        for (int i = 0; i < key.length(); i++)
-        {
-            int idx = key.charAt(i) - 'a';
-
-            if (pCrawl.child[idx] == null) pCrawl.child[idx] = new TrieNode();
-            pCrawl = pCrawl.child[idx];
-        }
-
-        pCrawl.isEnd = true;
-    }
-    
-    static boolean search(String key)
-    {
-        TrieNode pCrawl = root;
-      
-        for (int i = 0; i < key.length(); i++)
-        {
-            int idx = key.charAt(i) - 'a';
-
-            if (pCrawl.child[idx] == null) return false;
-            pCrawl = pCrawl.child[idx];
-        }
-      
-        return pCrawl.isEnd;
-    }
-}
-
-// Aho-Corasick Down ->
-class Corasick
-{
-    static class node {
-        HashMap<Character, node> child = new HashMap<>();
-        node suffix_link;
-        node output_link;
-        int pattern_ind;
-
-        node() {
-            this.suffix_link = null;
-            this.output_link = null;
-            this.pattern_ind = -1;
-        }
-    }
-
-    public static void build_trie(node root, String[] patterns) 
-    {
-        for (int i = 0; i < patterns.length; i++) {
-            node curr = root;
-
-            for (int j = 0; j < patterns[i].length(); j++) {
-                char c = patterns[i].charAt(j);
-                if (curr.child.containsKey(c)) curr = curr.child.get(c);
-                else {
-                    node nn = new node();
-                    curr.child.put(c, nn);
-                    curr = nn;
-                }
-            }
-            curr.pattern_ind = i;
-        }
-    }
-
-    public static void build_suffix_and_output_links(node root)       // will use bfs to set links
-    {
-        root.suffix_link = root;           //root represents empty string
-        Queue<node> qu = new LinkedList<>();
-
-        for (char rc : root.child.keySet()) {
-            qu.add(root.child.get(rc));
-            root.child.get(rc).suffix_link = root;  // root's children suffixlink will point to root only
-        }
-
-        while (qu.size() > 0)
-        {
-            node curState = qu.peek();
-            qu.remove();
-
-            for (char cc : curState.child.keySet()) {
-                node cchild = curState.child.get(cc); // jiske liye suffix link dhund rhe hein
-                node tmp = curState.suffix_link;    // parent suffix link
-                while (!tmp.child.containsKey(cc) && tmp != root) tmp = tmp.suffix_link;    //finding lps
-
-            if (tmp.child.containsKey(cc)) cchild.suffix_link = tmp.child.get(cc);
-            else cchild.suffix_link = root;
-            qu.add(cchild);
-        }
-
-        // setting output link
-        if (curState.suffix_link.pattern_ind >= 0) curState.output_link = curState.suffix_link;
-        else curState.output_link = curState.suffix_link.output_link;
-    }
-}
-
-class DSU
-{
-    public int[] dsu;
-    public int[] size;
- 
-    public DSU(int N)
-    {
-        dsu = new int[N+1];
-        size = new int[N+1];
-        for(int i=0; i <= N; i++)
-        {
-            dsu[i] = i;
-            size[i] = 1;
-        }
-    }
-    //with path compression, no find by rank
-    public int find(int x)
-    {
-        return dsu[x] == x ? x : (dsu[x] = find(dsu[x]));
-    }
-    public void merge(int x, int y)
-    {
-        int fx = find(x);
-        int fy = find(y);
-        dsu[fx] = fy;
-    }
-    public void merge(int x, int y, boolean sized)
-    {
-        int fx = find(x);
-        int fy = find(y);
-        size[fy] += size[fx];
-        dsu[fx] = fy;
-    }
-}
- 
-class FenwickTree
-{
-    //Binary Indexed Tree
-    //1 indexed
-    public int[] tree;
-    public int size;
- 
-    public FenwickTree(int size)
-    {
-        this.size = size;
-        tree = new int[size+5];
-    }
-    public void add(int i, int v)
-    {
-        while(i <= size)
-        {
-            tree[i] += v;
-            i += i&-i;
-        }
-    }
-    public int find(int i)
-    {
-        int res = 0;
-        while(i >= 1)
-        {
-            res += tree[i];
-            i -= i&-i;
-        }
-        return res;
-    }
-    public int find(int l, int r)
-    {
-        return find(r)-find(l-1);
-    }
-}
-
-class SegmentTree
-{
-    //Tlatoani's segment tree
-    //iterative implementation = low constant runtime factor
-    //range query, non lazy
-    final int[] val;
-    final int treeFrom;
-    final int length;
- 
-    public SegmentTree(int treeFrom, int treeTo)
-    {
-        this.treeFrom = treeFrom;
-        int length = treeTo - treeFrom + 1;
-        int l;
-        for (l = 0; (1 << l) < length; l++);
-        val = new int[1 << (l + 1)];
-        this.length = 1 << l;
-    }
-    public void update(int index, int delta)
-    {
-        //replaces value
-        int node = index - treeFrom + length;
-        val[node] = delta;
-        for (node >>= 1; node > 0; node >>= 1)
-            val[node] = comb(val[node << 1], val[(node << 1) + 1]);
-    }
-    public int query(int from, int to)
-    {
-        //inclusive bounds
-        if (to < from)
-            return 0; //0 or 1?
-        from += length - treeFrom;
-        to += length - treeFrom + 1;
-        //0 or 1?
-        int res = 0;
-        for (; from + (from & -from) <= to; from += from & -from)
-            res = comb(res, val[from / (from & -from)]);
-        for (; to - (to & -to) >= from; to -= to & -to)
-            res = comb(res, val[(to - (to & -to)) / (to & -to)]);
-        return res;
-    }
-    public int comb(int a, int b)
-    {
-        //change this
-        return Math.max(a,b);
-    }
-}
- 
-class LazySegTree
-{
-    //definitions
-    private int NULL = -1;
-    private int[] tree;
-    private int[] lazy;
-    private int length;
- 
-    public LazySegTree(int N)
-    {
-        length = N;   int b;
-        for(b=0; (1<<b) < length; b++);
-        tree = new int[1<<(b+1)];
-        lazy = new int[1<<(b+1)];
-    }
-    public int query(int left, int right)
-    {
-        //left and right are 0-indexed
-        return get(1, 0, length-1, left, right);
-    }
-    private int get(int v, int currL, int currR, int L, int R)
-    {
-        if(L > R)
-            return NULL;
-        if(L <= currL && currR <= R)
-            return tree[v];
-        propagate(v);
-        int mid = (currL+currR)/2;
-        return comb(get(v*2, currL, mid, L, Math.min(R, mid)),
-                get(v*2+1, mid+1, currR, Math.max(L, mid+1), R));
-    }
-    public void update(int left, int right, int delta)
-    {
-        add(1, 0, length-1, left, right, delta);
-    }
-    private void add(int v, int currL, int currR, int L, int R, int delta)
-    {
-        if(L > R)
-            return;
-        if(currL == L && currR == R)
-        {
-            //exact covering
-            tree[v] += delta;
-            lazy[v] += delta;
-            return;
-        }
-        propagate(v);
-        int mid = (currL+currR)/2;
-        add(v*2, currL, mid, L, Math.min(R, mid), delta);
-        add(v*2+1, mid+1, currR, Math.max(L, mid+1), R, delta);
-        tree[v] = comb(tree[v*2], tree[v*2+1]);
-    }
-    private void propagate(int v)
-    {
-        //tree[v] already has lazy[v]
-        if(lazy[v] == 0)
-            return;
-        tree[v*2] += lazy[v];
-        lazy[v*2] += lazy[v];
-        tree[v*2+1] += lazy[v];
-        lazy[v*2+1] += lazy[v];
-        lazy[v] = 0;
-    }
-    private int comb(int a, int b)
-    {
-        return Math.max(a,b);
-    }
-}
- 
-class RangeBit
-{
-    //FenwickTree and RangeBit are faster than LazySegTree by constant factor
-    final int[] value;
-    final int[] weightedVal;
- 
-    public RangeBit(int treeTo)
-    {
-        value = new int[treeTo+2];
-        weightedVal = new int[treeTo+2];
-    }
-    private void updateHelper(int index, int delta)
-    {
-        int weightedDelta = index*delta;
-        for(int j = index; j < value.length; j += j & -j)
-        {
-            value[j] += delta;
-            weightedVal[j] += weightedDelta;
-        }
-    }
-    public void update(int from, int to, int delta)
-    {
-        updateHelper(from, delta);
-        updateHelper(to + 1, -delta);
-    }
-    private int query(int to)
-    {
-        int res = 0;
-        int weightedRes = 0;
-        for (int j = to; j > 0; j -= j & -j)
-        {
-            res += value[j];
-            weightedRes += weightedVal[j];
-        }
-        return ((to + 1)*res)-weightedRes;
-    }
-    public int query(int from, int to)
-    {
-        if (to < from)
-            return 0;
-        return query(to) - query(from - 1);
-    }
-}
- 
-class SparseTable
-{
-    public int[] log;
-    public int[][] table;
-    public int N;  public int K;
- 
-    public SparseTable(int N)
-    {
-        this.N = N;
-        log = new int[N+2];
-        K = Integer.numberOfTrailingZeros(Integer.highestOneBit(N));
-        table = new int[N][K+1];
-        sparsywarsy();
-    }
-    private void sparsywarsy()
-    {
-        log[1] = 0;
-        for(int i=2; i <= N+1; i++)
-            log[i] = log[i/2]+1;
-    }
-    public void lift(int[] arr)
-    {
-        int n = arr.length;
-        for(int i=0; i < n; i++)
-            table[i][0] = arr[i];
-        for(int j=1; j <= K; j++)
-            for(int i=0; i + (1 << j) <= n; i++)
-                table[i][j] = Math.min(table[i][j-1], table[i+(1 << (j - 1))][j-1]);
-    }
-    public int query(int L, int R)
-    {
-        //inclusive, 1 indexed
-        L--;  R--;
-        int mexico = log[R-L+1];
-        return Math.min(table[L][mexico], table[R-(1 << mexico)+1][mexico]);
-    }
-}
- 
-class LCA
-{
-    public int N, root;
-    public ArrayDeque<Integer>[] edges;
-    private int[] enter;
-    private int[] exit;
-    private int LOG = 17; //change this
-    private int[][] dp;
- 
-    public LCA(int n, ArrayDeque<Integer>[] edges, int r)
-    {
-        N = n;   root = r;
-        enter = new int[N+1];
-        exit = new int[N+1];
-        dp = new int[N+1][LOG];
-        this.edges = edges;
-        int[] time = new int[1];
-        //change to iterative dfs if N is large
-        dfs(root, 0, time);
-        dp[root][0] = 1;
-        for(int b=1; b < LOG; b++)
-            for(int v=1; v <= N; v++)
-                dp[v][b] = dp[dp[v][b-1]][b-1];
-    }
-    private void dfs(int curr, int par, int[] time)
-    {
-        dp[curr][0] = par;
-        enter[curr] = ++time[0];
-        for(int next: edges[curr])
-            if(next != par)
-                dfs(next, curr, time);
-        exit[curr] = ++time[0];
-    }
-    public int lca(int x, int y)
-    {
-        if(isAnc(x, y))
-            return x;
-        if(isAnc(y, x))
-            return y;
-        int curr = x;
-        for(int b=LOG-1; b >= 0; b--)
-        {
-            int temp = dp[curr][b];
-            if(!isAnc(temp, y))
-                curr = temp;
-        }
-        return dp[curr][0];
-    }
-    private boolean isAnc(int anc, int curr)
-    {
-        return enter[anc] <= enter[curr] && exit[anc] >= exit[curr];
-    }
-}
- 
-class BitSet
-{
-    private int CONS = 62; //safe
-    public long[] sets;
-    public int size;
- 
-    public BitSet(int N)
-    {
-        size = N;
-        if(N%CONS == 0)
-            sets = new long[N/CONS];
-        else
-            sets = new long[N/CONS+1];
-    }
-    public void add(int i)
-    {
-        int dex = i/CONS;
-        int thing = i%CONS;
-        sets[dex] |= (1L << thing);
-    }
-    public int and(BitSet oth)
-    {
-        int boof = Math.min(sets.length, oth.sets.length);
-        int res = 0;
-        for(int i=0; i < boof; i++)
-            res += Long.bitCount(sets[i] & oth.sets[i]);
-        return res;
-    }
-    public int xor(BitSet oth)
-    {
-        int boof = Math.min(sets.length, oth.sets.length);
-        int res = 0;
-        for(int i=0; i < boof; i++)
-            res += Long.bitCount(sets[i] ^ oth.sets[i]);
-        return res;
-    }
-}
- 
-class MaxFlow
-{
-    //Dinic with optimizations (see magic array in dfs function)
-    public int N, source, sink;
-    public ArrayList<Edge>[] edges;
-    private int[] depth;
- 
-    public MaxFlow(int n, int x, int y)
-    {
-        N = n;
-        source = x;
-        sink = y;
-        edges = new ArrayList[N+1];
-        for(int i=0; i <= N; i++)
-            edges[i] = new ArrayList<Edge>();
-        depth = new int[N+1];
-    }
-    public void addEdge(int from, int to, long cap)
-    {
-        Edge forward = new Edge(from, to, cap);
-        Edge backward = new Edge(to, from, 0L);
-        forward.residual = backward;
-        backward.residual = forward;
-        edges[from].add(forward);
-        edges[to].add(backward);
-    }
-    public long mfmc()
-    {
-        long res = 0L;
-        int[] magic = new int[N+1];
-        while(assignDepths())
-        {
-            long flow = dfs(source, Long.MAX_VALUE/2, magic);
-            while(flow > 0)
-            {
-                res += flow;
-                flow = dfs(source, Long.MAX_VALUE/2, magic);
-            }
-            magic = new int[N+1];
-        }
-        return res;
-    }
-    private boolean assignDepths()
-    {
-        Arrays.fill(depth, -69);
-        ArrayDeque<Integer> q = new ArrayDeque<Integer>();
-        q.add(source);
-        depth[source] = 0;
-        while(q.size() > 0)
-        {
-            int curr = q.poll();
-            for(Edge e: edges[curr])
-                if(e.capacityLeft() > 0 && depth[e.to] == -69)
-                {
-                    depth[e.to] = depth[curr]+1;
-                    q.add(e.to);
-                }
-        }
-        return depth[sink] != -69;
-    }
-    private long dfs(int curr, long bottleneck, int[] magic)
-    {
-        if(curr == sink)
-            return bottleneck;
-        for(; magic[curr] < edges[curr].size(); magic[curr]++)
-        {
-            Edge e = edges[curr].get(magic[curr]);
-            if(e.capacityLeft() > 0 && depth[e.to]-depth[curr] == 1)
-            {
-                long val = dfs(e.to, Math.min(bottleneck, e.capacityLeft()), magic);
-                if(val > 0)
-                {
-                    e.augment(val);
-                    return val;
-                }
-            }
-        }
-        return 0L;  //no flow
-    }
-    private class Edge
-    {
-        public int from, to;
-        public long flow, capacity;
-        public Edge residual;
- 
-        public Edge(int f, int t, long cap)
-        {
-            from = f;
-            to = t;
-            capacity = cap;
-        }
-        public long capacityLeft()
-        {
-            return capacity-flow;
-        }
-        public void augment(long val)
-        {
-            flow += val;
-            residual.flow -= val;
-        }
-    }
-}
-
-class SuffixArray 
-{
-    int MAX_N = 100010;
-    int n = -1;
-    String s;
-    int[] RA = new int[MAX_N];
-    int[] SA = new int[MAX_N];
-    int[] tempRA = new int[MAX_N];
-    int[] tempSA = new int[MAX_N];
-    int[] lcp;
-
-    void countingSort(int k) // O(n)
-    {
-        int i, maxi = Math.max(300, n); // up to 255 ASCII chars or length of n
-        int sum = 0;
-        int[] c = new int[MAX_N];
-        for (i = 0; i < n; i++) c[i + k < n ? RA[i + k] : 0]++; // count the frequency of each integer rank
-        
-        for (i = 0; i < maxi; i++)
-        {
-            int t = c[i];
-            c[i] = sum;
-            sum += t;
-        }
-
-        for (i = 0; i < n; i++) // shuffle the suffix array if necessary
-            tempSA[c[SA[i] + k < n ? RA[SA[i] + k] : 0]++] = SA[i];
-
-        for (i = 0; i < n; i++) // update the suffix array SA
-            SA[i] = tempSA[i];
-    }
-
-    SuffixArray(String x) 
-    {
-        this.s = x;
-        // this.s += "$";
-        this.n = s.length();
-        for (int i = 0; i < n; i++) RA[i] = s.charAt(i);
-        for (int i = 0; i < n; i++) SA[i] = i;
-
-        for (int k = 1; k < n; k *= 2) {
-            countingSort(k);
-            countingSort(0);
-
-            int r = 0;
-            tempRA[SA[0]] = r;  // re-ranking; start from rank r = 0
-            for (int i = 1; i < n; i++) // compare adjacent suffixes if same pair => same rank r; otherwise, increase r
-                tempRA[this.SA[i]] =  (RA[this.SA[i]] == RA[this.SA[i - 1]] && RA[this.SA[i] + k] == RA[this.SA[i - 1] + k]) ? r : ++r;
-
-            for (int i = 0; i < n; i++)
-                RA[i] = tempRA[i]; // update the rank array RA
-
-            if (RA[this.SA[n - 1]] == n - 1) break; // nice optimization trick
-        }
-        kasai();    // use it to make lcp array in O(N) time
-    }
-
-    void kasai() 
-    {
-        int k = 0;
-        this.lcp = new int[n];
-        int[] rank = new int[n];
-
-        for (int i = 0; i < n; i++) rank[this.SA[i]] = i;
-
-        for (int i = 0; i < n; i++, k = Math.max(k - 1, 0)) {
-            if (rank[i] == n - 1) {
-                k = 0;
-                continue;
-            }
-            int j = this.SA[rank[i] + 1];
-            while (i + k < n && j + k < n && s.charAt(i + k) == s.charAt(j + k)) k++;
-            this.lcp[rank[i]] = k;
-        }
-    }
-}
-
-// Reader Class for FAST I/O
-
-class Reader 
-{
-    final private int BUFFER_SIZE = 1 << 16;
-    final private int STRING_LENGTH = (int)1e6+1;
-    private DataInputStream din;
-    private byte[] buffer;
-    private int bufferPointer, bytesRead;
-
-    public Reader()
-    {
-        din = new DataInputStream(System.in);
-        buffer = new byte[BUFFER_SIZE];
-        bufferPointer = bytesRead = 0;
-    }
-
-    public Reader(String file_name) throws IOException
-    {
-        din = new DataInputStream(
-            new FileInputStream(file_name));
-        buffer = new byte[BUFFER_SIZE];
-        bufferPointer = bytesRead = 0;
-    }
-
-    public String readLine() throws IOException
-    {
-        byte[] buf = new byte[STRING_LENGTH];
-        int cnt = 0, c;
-        while ((c = read()) != -1) {
-            if (c == '\n') {
-                if (cnt != 0) {
-                    break;
-                }
-                else {
-                    continue;
-                }
-            }
-            buf[cnt++] = (byte)c;
-        }
-        return new String(buf, 0, cnt);
-    }
-
-    public int nextInt() throws IOException
-    {
-        int ret = 0;
-        byte c = read();
-        while (c <= ' ') {
-            c = read();
-        }
-        boolean neg = (c == '-');
-        if (neg)
-            c = read();
-        do {
-            ret = ret * 10 + c - '0';
-        } while ((c = read()) >= '0' && c <= '9');
-
-        if (neg)
-            return -ret;
-        return ret;
-    }
-
-    public long nextLong() throws IOException
-    {
-        long ret = 0;
-        byte c = read();
-        while (c <= ' ')
-            c = read();
-        boolean neg = (c == '-');
-        if (neg)
-            c = read();
-        do {
-            ret = ret * 10 + c - '0';
-        } while ((c = read()) >= '0' && c <= '9');
-        if (neg)
-            return -ret;
-        return ret;
-    }
-
-    public double nextDouble() throws IOException
-    {
-        double ret = 0, div = 1;
-        byte c = read();
-        while (c <= ' ')
-            c = read();
-        boolean neg = (c == '-');
-        if (neg)
-            c = read();
-
-        do {
-            ret = ret * 10 + c - '0';
-        } while ((c = read()) >= '0' && c <= '9');
-
-        if (c == '.') {
-            while ((c = read()) >= '0' && c <= '9') {
-                ret += (c - '0') / (div *= 10);
-            }
-        }
-
-        if (neg)
-            return -ret;
-        return ret;
-    }
-
-    private void fillBuffer() throws IOException
-    {
-        bytesRead = din.read(buffer, bufferPointer = 0,
-                             BUFFER_SIZE);
-        if (bytesRead == -1)
-            buffer[0] = -1;
-    }
-
-    private byte read() throws IOException
-    {
-        if (bufferPointer == bytesRead)
-            fillBuffer();
-        return buffer[bufferPointer++];
-    }
-
-    public void close() throws IOException
-    {
-        if (din == null)
-            return;
-        din.close();
-    }
-}
-
-// THIS IS TOXIC AF, SUFFIX TREE IMPLEMENTATION, UNSEE IT PLS....
-
-class SuffixTree 
-{
-    public SuffixNode root;
-    private Active active;
-    private int remainingSuffixCount;
-    private End end;
-    private char input[];
-    private static char UNIQUE_CHAR = '$';
-
-    SuffixTree(char input[]) 
-    {
-        this.input = new char[input.length + 1];
-
-        for (int i = 0; i < input.length; i++)
-            this.input[i] = input[i];
-
-        this.input[input.length] = UNIQUE_CHAR;
-    }
-
-    public void build() 
-    {
-        root = SuffixNode.createNode(1, new End(0));
-        root.index = -1;
-        active = new Active(root);
-        this.end = new End(-1);
-
-        //loop through string to start new phase
-        for (int i = 0; i < input.length; i++)
-            startPhase(i);
-
-        if (remainingSuffixCount != 0)
-            System.out.print("Something wrong happened");
-
-        //finally walk the tree again and set up the index.
-        setIndexUsingDfs(root, 0, input.length);
-    }
-
-    public boolean findPattern(SuffixNode node, String pat, int i)
-    {
-        if(node == null)
-            return false;
-
-        int j = node.start;
-
-        while(j <= node.end.end)
-        {
-            if(i == pat.length()-1 && pat.charAt(i) == input[j])
-                return true;
-            else if(input[j] != pat.charAt(i))
-                return false;
-
-            i++;j++;
-        }
-
-        for(SuffixNode child: node.child)
-        {
-            boolean nextAns = findPattern(child, pat, i);
-            if(nextAns) return true;
-        }
-        return false;
-    }
-
-    private void startPhase(int i) 
-    {
-        //set lastCreatedInternalNode to null before start of every phase.
-        SuffixNode lastCreatedInternalNode = null;
-        //global end for leaf. Does rule 1 extension as per trick 3 by incrementing end.
-        end.end++;
-
-        //these many suffixes need to be created.
-        remainingSuffixCount++;
-        
-        while (remainingSuffixCount > 0) 
-        {
-            //if active length is 0 then look for current character from root.
-            if (active.activeLength == 0) 
-            {
-                //if current character from root is not null then increase active length by 1
-                //and break out of while loop. This is rule 3 extension and trick 2 (show stopper)
-                if (selectNode(i) != null) 
-                {
-                    active.activeEdge = selectNode(i).start;
-                    active.activeLength++;
-                    break;
-                } //create a new leaf node with current character from leaf. This is rule 2 extension.
-                else 
-                {
-                    root.child[input[i]] = SuffixNode.createNode(i, end);
-                    remainingSuffixCount--;
-                }
-            }
-            else 
-            {
-                //if active length is not 0 means we are traversing somewhere in middle. So check if next character is same as
-                //current character.
-                try
-                {
-                    char ch = nextChar(i);
-                    //if next character is same as current character then do a walk down. This is again a rule 3 extension and
-                    //trick 2 (show stopper).
-                    if (ch == input[i]) 
-                    {
-                        //if lastCreatedInternalNode is not null means rule 2 extension happened before this. Point suffix link of that node
-                        //to selected node using active point.
-                        //TODO - Could be wrong here. Do we only do this if when walk down goes past a node or we do it every time.
-                        if (lastCreatedInternalNode != null)
-                            lastCreatedInternalNode.suffixLink = selectNode();
+        for(int i=0; i < s.length(); ++i) {
+            int idx = s.charAt(i)-'a';
             
-                        //walk down and update active node if required as per rules of active node update for rule 3 extension.
-                        walkDown(i);
-                        break;
-                    }
-                    else
-                    {
-                        //next character is not same as current character so create a new internal node as per
-                        //rule 2 extension.
-                        SuffixNode node = selectNode();
-                        int oldStart = node.start;
-                        node.start = node.start + active.activeLength;
-                        //create new internal node
-                        SuffixNode newInternalNode = SuffixNode.createNode(oldStart, new End(oldStart + active.activeLength - 1));
+            if(pCrawl.CHILDREN[idx] == null) return false;
+            pCrawl = pCrawl.CHILDREN[idx];
+        }
 
-                        //create new leaf node
-                        SuffixNode newLeafNode = SuffixNode.createNode(i, this.end);
+        return pCrawl.IS_END;
+    }
+}
 
-                        //set internal nodes child as old node and new leaf node.
-                        newInternalNode.child[input[newInternalNode.start + active.activeLength]] = node;
-                        newInternalNode.child[input[i]] = newLeafNode;
-                        newInternalNode.index = -1;
-                        active.activeNode.child[input[newInternalNode.start]] = newInternalNode;
+class SegmentTree {
 
-                        //if another internal node was created in last extension of this phase then suffix link of that
-                        //node will be this node.
-                        if (lastCreatedInternalNode != null) {
-                            lastCreatedInternalNode.suffixLink = newInternalNode;
-                        }
-                        //set this guy as lastCreatedInternalNode and if new internalNode is created in next extension of this phase
-                        //then point suffix of this node to that node. Meanwhile set suffix of this node to root.
-                        lastCreatedInternalNode = newInternalNode;
-                        newInternalNode.suffixLink = root;
+    public int[] TREE;
+    public int N;
 
-                        //if active node is not root then follow suffix link
-                        if (active.activeNode != root) {
-                            active.activeNode = active.activeNode.suffixLink;
-                        }
-                        //if active node is root then increase active index by one and decrease active length by 1
-                        else {
-                            active.activeEdge = active.activeEdge  + 1;
-                            active.activeLength--;
-                        }
-                        remainingSuffixCount--;
-                    }
+    public SegmentTree(int[] a) {
+        this.N = a.length+5;
+        this.TREE = new int[2*N];
 
-                } 
-                catch (EndOfPathException e) 
-                {
-                    //this happens when we are looking for new character from end of current path edge. Here we already have internal node so
-                    //we don't have to create new internal node. Just create a leaf node from here and move to suffix new link.
-                    SuffixNode node = selectNode();
-                    node.child[input[i]] = SuffixNode.createNode(i, end);
-                    
-                    if (lastCreatedInternalNode != null) {
-                        lastCreatedInternalNode.suffixLink = node;
-                    }
-                    lastCreatedInternalNode = node;
-                    
-                    //if active node is not root then follow suffix link
-                    if (active.activeNode != root) {
-                        active.activeNode = active.activeNode.suffixLink;
-                    }
-                    //if active node is root then increase active index by one and decrease active length by 1
-                    else {
-                        active.activeEdge = active.activeEdge + 1;
-                        active.activeLength--;
-                    }
+        for(int i=0; i<N; ++i) TREE[N+i] = a[i];
+        for(int i=N-1; i > 0; --i) TREE[i] = TREE[i<<1] + TREE[i<<1 | 1];
+    }
 
-                    remainingSuffixCount--;
-                }
+    public void update(int p, int val) {
+        for(TREE[p+=N] = val; p > 1; p>>=1) TREE[p>>1] = TREE[p] + TREE[p^1];
+    }
+
+    public int query(int l, int r) {
+        int res = 0;
+        for(l+=N, r+=N; l < r; l>>=1, r>>=1) {
+            if((l&1) > 0) res += TREE[l++];
+            if((r&1) > 0) res += TREE[--r];
+        }
+        return res;
+    }
+}
+
+class LazySegmentTree {
+
+    public int[] TREE;
+    public int[] LAZY;
+    public int N, H;
+
+    public SegmentTree(int[] a) {
+        this.N = a.length+5;
+        this.H = Integer.SIZE - Integer.numberOfLeadingZeroes(N);
+        this.TREE = new int[2*N];
+        this.LAZY = new int[2*N];
+
+        for(int i=0; i<N; ++i) TREE[N+i] = a[i];
+        for(int i=N-1; i > 0; --i) TREE[i] = TREE[i<<1] + TREE[i<<1 | 1];
+    }
+
+    public void apply(int p, int val) {
+        TREE[p] += val;
+        if(p < N) LAZY[p] += val;
+    }
+
+    public void build(int p) {
+        while(p > 1) {
+            p>>=1;
+            TREE[p] = Math.max(TREE[p<<1], TREE[p<<1 | 1]) + LAZY[p];
+        }
+    }
+
+    public void push(int p) {
+        for(int s = H; s > 0; --s) {
+            int i = p >> s;
+
+            if(LAZY[i] != 0) {
+                apply(i<<1, LAZY[i]);
+                apply(i<<1 | 1, LAZY[i]);
+                LAZY[i] = 0;
             }
         }
     }
 
-    private void walkDown(int index) 
-    {
-        SuffixNode node = selectNode();
-        //active length is greater than path edge length.
-        //walk past current node so change active point.
-        //This is as per rules of walk down for rule 3 extension.
-        
-        if (diff(node) < active.activeLength) {
-            active.activeNode = node;
-            active.activeLength = active.activeLength - diff(node);
-            active.activeEdge = node.child[input[index]].start;
+    public void update(int l, int r, int val) {
+        l+=N; r+=N;
+        int l0 = l, r0 = r;
+        for(; l < r; l>>=1, r>>=1) {
+            if((l&1) > 0) apply(l++, val);
+            if((r&1) > 0) apply(--r, val);
         }
-        else {
-            active.activeLength++;
-        }
+        build(l0); build(r0-1);
     }
 
-    //find next character to be compared to current phase character.
-    private char nextChar(int i) throws EndOfPathException
-    {
-        SuffixNode node = selectNode();
-        
-        if (diff(node) >= active.activeLength) {
-            return input[active.activeNode.child[input[active.activeEdge]].start + active.activeLength];
-        }
-        
-        if (diff(node) + 1 == active.activeLength ) {
-            if (node.child[input[i]] != null) {
-                return input[i];
-            }
-        }
-        else {
-            active.activeNode = node;
-            active.activeLength = active.activeLength - diff(node) - 1;
-            active.activeEdge = active.activeEdge + diff(node)  + 1;
-            return nextChar(i);
-        }
+    public int query(int l, int r) {
+        l+=N; r+=N;
+        push(l); push(r-1);
 
-        throw new EndOfPathException();
+        int res = -(int)2e9;
+        for(; l < r; l>>=1, r>>=1) {
+            if((l&1) > 0) res = Math.max(res, TREE[l++]);
+            if((r&1) > 0) res = Math.max(TREE[--r], res);
+        }
+        return res;
+    }
+}
+
+class Aho {
+
+    public Aho[] CHILDREN;
+    public int PATTERN_INDEX;
+    public Aho SUFFIX_LINK, OUTPUT_LINK;
+
+    public Aho() {
+        CHILDREN = new Aho[26];
+        SUFFIX_LINK = null;
+        OUTPUT_LINK = null;
+        PATTERN_INDEX = Integer.MAX_VALUE;
+    }
+}
+
+class Corasick {
+    public Aho ROOT;
+    
+    public Corasick() {
+        this.ROOT = new Aho();
     }
 
-    private static class EndOfPathException extends Exception {
+    public void insert(String s, int ind) {
+        Aho pCrawl = this.ROOT;
 
-    }
+        for(int i=0; i < s.length(); ++i) {
+            int idx = s.charAt(i)-'a';
 
-    private SuffixNode selectNode() {
-        return active.activeNode.child[input[active.activeEdge]];
-    }
-
-    private SuffixNode selectNode(int index) {
-        return active.activeNode.child[input[index]];
-    }
-
-    private int diff(SuffixNode node) {
-        return node.end.end - node.start;
-    }
-
-    private void setIndexUsingDfs(SuffixNode root, int val, int size) {
-        if (root == null) {
-            return;
+            if(pCrawl.CHILDREN[idx] == null)
+                pCrawl.CHILDREN[idx] = new Aho();
+            
+            pCrawl = pCrawl.CHILDREN[idx];
         }
 
-        val += root.end.end - root.start + 1;
-        if (root.index != -1) 
-        {
-            root.index = size - val;
-            return;
-        }
-
-        for (SuffixNode node : root.child) {
-            setIndexUsingDfs(node, val, size);
-        }
+        pCrawl.PATTERN_INDEX = Math.min(pCrawl.PATTERN_INDEX, ind);
     }
 
-    /**
-    * Do a DFS traversal of the tree.
-    */
-    public void dfsTraversal() {
-        List<Character> result = new ArrayList<>();
-        for (SuffixNode node : root.child)
-            dfsTraversal(node, result);
-    }
-
-    private void dfsTraversal(SuffixNode root, List<Character> result) 
-    {
-        if (root == null)
-            return;
-
-        if (root.index != -1) {
-            for (int i = root.start; i <= root.end.end; i++) {
-                result.add(input[i]);
-            }
-            result.stream().forEach(System.out::print);
-            System.out.println(" " + root.index);
-            for (int i = root.start; i <= root.end.end; i++) {
-                result.remove(result.size() - 1);
-            }
-            return;
-        }
-
-        for (int i = root.start; i <= root.end.end; i++) {
-            result.add(input[i]);
-        }
-
-        for (SuffixNode node : root.child) {
-            dfsTraversal(node, result);
-        }
-
-        for (int i = root.start; i <= root.end.end; i++) {
-            result.remove(result.size() - 1);
-        }
-
-    }
-
-    /**
-    * Do validation of the tree by comparing all suffixes and their index at leaf node.
-    */
-    private boolean validate(SuffixNode root, char[] input, int index, int curr) 
-    {
-        if (root == null) {
-            System.out.println("Failed at " + curr + " for index " + index);
+    public boolean not_root(Aho pCrawl) {
+        if(pCrawl == null || pCrawl == this.ROOT)
             return false;
-        }
-
-        if (root.index != -1) {
-            if (root.index != index) {
-                System.out.println("Index not same. Failed at " + curr + " for index " + index);
-                return false;
-            }
-            else return true;
-        }
-
-        if (curr >= input.length) {
-            System.out.println("Index not same. Failed at " + curr + " for index " + index);
-            return false;
-        }
-
-        SuffixNode node = root.child[input[curr]];
-        if (node == null) {
-            System.out.println("Failed at " + curr + " for index " + index);
-            return false;
-        }
-
-        int j = 0;
-        for (int i = node.start ; i <= node.end.end; i++) {
-            if (input[curr + j] != input[i] ) {
-                System.out.println("Mismatch found " + input[curr + j] + " " + input[i]);
-                return false;
-            }
-            j++;
-        }
-
-        curr += node.end.end - node.start + 1;
-        return validate(node, input, index, curr);
-    }
-
-    public boolean validate() {
-        for (int i = 0; i < this.input.length; i++) {
-            if (!validate(this.root, this.input, i, i)) {
-                System.out.println("Failed validation");
-                return false;
-            }
-        }
         return true;
     }
-}
 
-class SuffixNode 
-{
-    private SuffixNode() {}
+    public void set_links() {
 
-    private static final int TOTAL = 256;
-    SuffixNode[] child = new SuffixNode[TOTAL];
+        this.ROOT.SUFFIX_LINK = this.ROOT;
+        Aho temp, pCrawl;
 
-    int start;
-    End end;
-    int index;
+        Queue<Aho> q = new LinkedList<>();
+        q.offer(this.ROOT);
 
-    SuffixNode suffixLink;
+        while(!q.isEmpty()) {
+            pCrawl = q.poll();
+            
+            for(int i=0; i<26; ++i) {
 
-    public static SuffixNode createNode(int start, End end) {
-        SuffixNode node = new SuffixNode();
-        node.start = start;
-        node.end = end;
-        return node;
-    }
+                if(not_root(pCrawl.CHILDREN[i])) {
+                    q.offer(pCrawl.CHILDREN[i]);
+                    temp = pCrawl.SUFFIX_LINK;
 
-    @Override
-    public String toString() 
-    {
-        StringBuffer buffer = new StringBuffer();
-        int i = 0;
-        for (SuffixNode node : child) {
-            if (node != null) {
-                buffer.append((char)i + " ");
+                    while(not_root(temp) && !not_root(temp.CHILDREN[i]))
+                        temp = temp.SUFFIX_LINK;
+
+                    if(not_root(pCrawl.CHILDREN[i]) && temp != pCrawl) {
+                        pCrawl.CHILDREN[i].SUFFIX_LINK = temp.CHILDREN[i];
+                        // pCrawl.CHILDREN[i].PATTERN_INDEX = Math.min(pCrawl.CHILDREN[i].PATTERN_INDEX, temp.CHILDREN[i].PATTERN_INDEX);
+                    }
+                    else pCrawl.CHILDREN[i].SUFFIX_LINK = this.ROOT;
+                }
             }
-            i++;
+
+            if(pCrawl.SUFFIX_LINK.PATTERN_INDEX < Integer.MAX_VALUE)
+                pCrawl.OUTPUT_LINK = pCrawl.SUFFIX_LINK;
+            else pCrawl.OUTPUT_LINK = pCrawl.SUFFIX_LINK.OUTPUT_LINK;
         }
-        return "SuffixNode [start=" + start + "]" + " " + buffer.toString();
+    }
+
+    public boolean search(String s, int ind) {
+        Aho pCrawl = this.ROOT;
+
+        for(int i=0; i < s.length(); ++i) {
+            int idx = s.charAt(i)-'a';
+
+            if(not_root(pCrawl.CHILDREN[idx])) {
+                pCrawl = pCrawl.CHILDREN[idx];
+
+                if(pCrawl.PATTERN_INDEX < ind)
+                    return true;
+
+                Aho mol = pCrawl.OUTPUT_LINK;
+                while(not_root(mol)) {
+                    if(mol.PATTERN_INDEX < index)
+                        return true;
+                    mol = mol.OUTPUT_LINK;
+                }
+            }
+            else {
+                while(pCrawl != this.ROOT && pCrawl.CHILDREN[idx] == null)
+                    pCrawl = pCrawl.SUFFIX_LINK;
+
+                if(pCrawl.CHILDREN[idx] != null) --i;
+            }
+        }
+
+        return false;
     }
 }
 
-class End 
-{
-    public End(int end) {
-        this.end = end;
-    }
-    int end;
-}
+class SUffixArray {
 
-class Active 
-{
-    Active(SuffixNode node) 
-    {
-        activeLength = 0;
-        activeNode = node;
-        activeEdge = -1;
+    public int N;
+    public String S;
+    public int MAXN = 100010;
+    public int[] LCP, RA, SA, TRA, TSA;
+
+    public SUffixArray(String s) {
+        this.S = s+"$";
+        this.N = s.length();
+        this.RA = new int[N]; this.TRA = new int[N];
+        this.SA = new int[N]; this.TSA = new int[N];
     }
 
-    @Override
-    public String toString() {
-        return "Active [activeNode=" + activeNode + ", activeIndex=" + activeEdge + ", activeLength=" + activeLength + "]";
+    public void cSort(int k) {
+        int maxi = Math.max(300, N), sum = 0;
+
+        int[] c = new int[MAXN];
+        for(int i=0; i < N; ++i) ++c[(i+k < N ? RA[i+k] : 0)];
+
+        for(int i=0; i < maxi; ++i) {
+            int tp = c[i];
+            c[i] = sum;
+            sum += tp;
+        }
+
+        for(int i=0; i < N; ++i)
+            TSA[c[(SA[i]+k > 0 ? RA[SA[i]+k] : 0)]++] = SA[i];
+
+        for(int i=0; i < N; ++i) SA[i] = TSA[i];
     }
 
-    SuffixNode activeNode;
-    int activeEdge;
-    int activeLength;
+    public void build() {
+        for(int k=1; k < N; k*=2) {
+            cSort(k); cSort(0);
+            
+            int r = 0;
+            TRA[SA[0]] = r;
+
+            for(int i=1; i < N; ++i) {
+                if(RA[SA[i]] == RA[SA[i-1]] && RA[SA[i]+k] == RA[SA[i-1]+k]) TRA[SA[i]] = r;
+                else TRA[SA[i]] = ++r;
+            }
+
+            for(int i=0; i < N; ++i) RA[i] = TRA[i];
+            if(RA[SA[N-1]] == N-1) break;
+        }
+    }
+
+    public void kasai() {
+        int k = 0;
+        this.LCP = new int[N];
+        int[] rank = new int[N];
+
+        for(int i=0; i < N; ++i) rank[SA[i]] = i;
+
+        for(int i=0; i < N; ++i) {
+            if(rank[i] == N-1) {
+                k = 0;
+                continue; }
+
+            int j = SA[rank[i]+1];
+            while(i+k < N && j+k < N && S.charAt(i+k) == S.charAt(j+k))
+                ++k;
+
+            LCP[rank[i]] = k;
+        }
+    }
 }
